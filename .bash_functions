@@ -197,11 +197,6 @@ flushdns() {
 	sudo killall -HUP mDNSResponder
 }
 
-# go to home dir
-h() {
-	cd ~
-}
-
 # Kill all instances of a named process
 killimg() {
 	echo "Usage: killimg -s(optional) [image]"
