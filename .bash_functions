@@ -59,7 +59,7 @@ update() {
 ###############################################################################
 
 # Run command on wildcard matched files
-# batchop '*.log' head -n4
+# batchop '*.log' 'head -n4'
 batchop() {
 	# equivalent with find command:
 	# find . -iname "file_pattern*" -type f -maxdepth 1 -exec command -param {} \; -exec cmd2 {} \;
