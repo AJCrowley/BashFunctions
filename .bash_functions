@@ -292,11 +292,6 @@ welcome() {
 ##                       Software Specific functions                         ##
 ###############################################################################
 
-# Patch broken CORE keygens
-fixcore() {
-	upx -d CORE\ Keygen.app/Contents/MacOS/CORE\ Keygen
-}
-
 # Fix CUDA persistent update required notification
 fixcuda() {
 	if ( [ "$1" == "" ] )
