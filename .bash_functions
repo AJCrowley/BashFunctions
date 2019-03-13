@@ -19,8 +19,6 @@ brewupdate() {
 	brew upgrade
 	echo "🍺  Updating Homebrew Casks..."
 	brew cu -a
-	echo "🍺  Pruning Homebrew..."
-	brew prune
 	echo "🍺  Cleaning Up Homebrew..."
 	brew cleanup
 	echo "🍺  Checking Homebrew State..."
@@ -59,7 +57,7 @@ update() {
 ###############################################################################
 
 # Run command on wildcard matched files
-# batchop '*.log' 'head -n4'
+# batchop '*.log' head -n4
 batchop() {
 	# equivalent with find command:
 	# find . -iname "file_pattern*" -type f -maxdepth 1 -exec command -param {} \; -exec cmd2 {} \;
@@ -136,6 +134,7 @@ extmount() {
 	then
 		echo "Usage: extmount [source e.g. /dev/disk2s2] [mount point e.g. /Volumes/ext]"
 	else
+		#sudo fuse-ext2 $1 $2 -o rw+
 		sudo ext4fuse $1 $2 -o allow_other
 	fi
 }
@@ -240,21 +239,7 @@ pgzip() {
 
 # display some useful and pretty info
 welcome() {
-    local upSeconds="$(sysctl -n kern.boottime | cut -c14-18)"
-    local secs=$((upSeconds%60))
-    local mins=$((upSeconds/60%60))
-    local hours=$((upSeconds/3600%24))
-    local days=$((upSeconds/86400))
-    local UPTIME=$(printf "%d days, %02dh%02dm%02ds" "$days" "$hours" "$mins" "$secs")
-	
-	local istats=$(istats)
-	istats=${istats::${#istats}-64}
-    local df_out=()
-    local line
-    while read line; do
-        df_out+=("$line")
-    done < <(df -h /)
-
+	# define colours
     local rst="$(tput sgr0)"
     local fgblk="${rst}$(tput setaf 0)" # Black - Regular
     local fgred="${rst}$(tput setaf 1)" # Red
@@ -276,14 +261,46 @@ welcome() {
     local bfgwht="${bld}$(tput setaf 7)"
 	
     local out
+	local line
 	
-	out+="${fggrn}$(date +"%A, %e %B %Y, %r")\n\n"
-	out+="${fgylw}${df_out[0]}\n"
+    local upSeconds="$(sysctl -n kern.boottime | cut -c14-18)"
+    local secs=$((upSeconds%60))
+    local mins=$((upSeconds/60%60))
+    local hours=$((upSeconds/3600%24))
+    local days=$((upSeconds/86400))
+    local UPTIME=$(printf "%d days, %02dh%02dm%02ds" "$days" "$hours" "$mins" "$secs")
+
+	local istats=()
+	while read line; do
+		istats+=("$line")
+	done < <(istats)
+    local df_out=()
+    while read line; do
+        df_out+=("$line")
+    done < <(df -h /)
+	
+	out+="${bfggrn}$(date +"%A, %e %B %Y, %r")\n\n"
+	out+="${bfgylw}${df_out[0]}\n"
 	out+="${fgylw}${df_out[1]}\n\n${fgwht}"
-	out+=${istats}
-	out+="\n\n${fgred}Uptime.............: ${UPTIME}\n"
-	out+="${fgred}Running Processes..: $(ps ax | wc -l | tr -d " ")\n"
-	out+="${fgred}IP Address.........: $(ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2)\n\n"
+	out+="${bfgblu}${istats[0]}\n"
+	out+="${fgblu}${istats[1]}\n"
+	out+="${fgblu}${istats[2]}\n"
+	out+="${bfgblu}${istats[3]}\n"
+	out+="${fgblu}${istats[4]}\n"
+	out+="${fgblu}${istats[5]}\n"
+	out+="${fgblu}${istats[6]}\n"
+	out+="${fgblu}${istats[7]}\n"
+	out+="${bfgblu}${istats[8]}\n"
+	out+="${fgblu}${istats[9]}\n"
+	out+="${fgblu}${istats[10]}\n"
+	out+="${fgblu}${istats[11]}\n"
+	out+="${fgblu}${istats[12]}\n"
+	out+="${fgblu}${istats[13]}\n"
+	out+="${fgblu}${istats[14]}\n"
+	out+="${fgblu}${istats[15]}"
+	out+="\n\n${fgred}Uptime.............: ${bfgred}${UPTIME}\n"
+	out+="${fgred}Running Processes..: ${bfgred}$(ps ax | wc -l | tr -d " ")\n"
+	out+="${fgred}IP Address.........: ${bfgred}$(ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2)\n\n"
 	
     echo -e "\n$out"
 }
@@ -291,6 +308,11 @@ welcome() {
 ###############################################################################
 ##                       Software Specific functions                         ##
 ###############################################################################
+
+# Patch broken CORE keygens
+fixcore() {
+	upx -d CORE\ Keygen.app/Contents/MacOS/CORE\ Keygen
+}
 
 # Fix CUDA persistent update required notification
 fixcuda() {
@@ -323,6 +345,8 @@ vivdev() {
 	then
 		cp ~/Dropbox/Apps/Vivaldi/custom.css ./style/
 		mate browser.html
+	else
+		echo "Usage: vivdev [run|cust]"
 	fi
 }
 
@@ -537,21 +561,21 @@ devstack() {
 web() {
 	if ( [ "$1" == "start" ] )
 	then
-		brew services start php72
+		brew services start php
 		brew services start mariadb
 		brew services start redis
 		sudo brew services start dnsmasq
 		sudo brew services start httpd24
 	elif ( [ "$1" == "stop" ] )
 	then
-		brew services stop php72
+		brew services stop php
 		brew services stop mariadb
 		brew services stop redis
 		sudo brew services stop dnsmasq
 		sudo brew services stop httpd24
 	elif ( [ "$1" == "restart" ] )
 	then
-		brew services restart php72
+		brew services restart php
 		brew services restart mariadb
 		brew services restart redis
 		sudo brew services restart dnsmasq
