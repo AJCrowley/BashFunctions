@@ -263,13 +263,13 @@ welcome() {
     local out
 	local line
 	
-    local upSeconds="$(sysctl -n kern.boottime | cut -c14-18)"
+	local upSeconds=$(echo $(sysctl -n kern.boottime | cut -c14-18) | sed 's/^0*//')
     local secs=$((upSeconds%60))
     local mins=$((upSeconds/60%60))
     local hours=$((upSeconds/3600%24))
     local days=$((upSeconds/86400))
-    local UPTIME=$(printf "%d days, %02dh%02dm%02ds" "$days" "$hours" "$mins" "$secs")
-
+    local UPTIME=$(printf "%dd %02dh %02dm %02ds" "$days" "$hours" "$mins" "$secs")
+	
 	local istats=()
 	while read line; do
 		istats+=("$line")
@@ -277,7 +277,7 @@ welcome() {
     local df_out=()
     while read line; do
         df_out+=("$line")
-    done < <(df -h /)
+	done < <(df -h /)
 	
 	out+="${bfggrn}$(date +"%A, %e %B %Y, %r")\n\n"
 	out+="${bfgylw}${df_out[0]}\n"
