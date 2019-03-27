@@ -56,51 +56,6 @@ update() {
 ##                    System/Terminal related functions                      ##
 ###############################################################################
 
-# Run command on wildcard matched files
-# batchop '*.log' head -n4
-batchop() {
-	# equivalent with find command:
-	# find . -iname "file_pattern*" -type f -maxdepth 1 -exec command -param {} \; -exec cmd2 {} \;
-	if ( [ "$1" == "" ] )
-	then
-		echo "Usage: batchop '[file matching pattern]' '[command]' [flag(optional)]"
-		echo "Flags: -d directories only, -f files only, defaults to everything"
-	else
-		for flags do true; done
-		for f in $1;
-		do
-			echo "File: $f"
-			if ( [ "$flags" == '-d' ])
-			then
-				if ( [ -d "$f" ] )
-				then
-					echo ">> $2 $f"
-					$2 $f;
-					echo
-				else
-					echo "$f is a file, skipping"
-					echo
-				fi
-			elif ( [ "$flags" == '-f' ])
-			then
-				if ( [ -f "$f" ] )
-				then
-					echo ">> $2 $f"
-					$2 $f;
-					echo
-				else
-					echo "$f is a directory, skipping"
-					echo
-				fi
-			else
-				echo ">> $2 $f"
-				$2 $f;
-				echo
-			fi;
-		done;
-	fi
-}
-
 # Change directory to same path displayed in Finder window
 cdf() {
 	target=`osascript -e 'tell application "Finder" to if (count of Finder windows) > 0 then get POSIX path of (target of front Finder window as text)'`
